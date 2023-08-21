@@ -63,3 +63,31 @@ cd into example project dir
 make
 then ./bin/projectname to run
 ```
+
+# OPTIONAL Enable TCP_NODELAY to disable Nagels algorithm ( https://en.wikipedia.org/wiki/Nagle%27s_algorithm ) so TCP connections are sent as instructed
+
+Add this block of code into the Create() function in ofxTCPManager.cpp 
+
+```int enable=1;
+if (setsockopt(m_hSocket,IPPROTO_TCP,TCP_NODELAY,(char*)&enable,sizeof(int))< 0)	
+{
+	//adedd to disable no delay
+}
+```
+
+```
+bool ofxTCPManager::Create()
+{
+	if (m_hSocket != INVALID_SOCKET) return(false);
+	m_closing = false;
+	m_hSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_IP);
+	int enable=1;
+	if (setsockopt(m_hSocket,IPPROTO_TCP,TCP_NODELAY,(char*)&enable,sizeof(int))< 0)	
+	{
+		//adedd to disable no delay
+	}
+	bool ret = (m_hSocket != INVALID_SOCKET);
+	if(!ret) ofxNetworkCheckError();
+	return ret;
+}
+```
